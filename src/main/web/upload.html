@@ -1,0 +1,14 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Image Upload</title>
+        <meta charset="UTF-8">
+    </head>
+    <body>
+        <form action="http://localhost:8080/imageServer/uploadImage" enctype="multipart/form-data" method="post"> 
+            <input type="file" id="filechooser" name = "file">
+			<button type="submit" id="submit">Upload</button>
+        </form>
+        <p id="status"></p>
+    </body>
+</html>
