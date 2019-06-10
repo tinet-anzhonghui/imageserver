@@ -30,7 +30,7 @@ public class ImageServerController {
     private static final int MAX_SIZE_IN_MB = 1;
 
     // 文件存储目录
-    private static final Path BASE_DIR = Paths.get(System.getProperty("user.home"), "Saved Images");
+    public static final Path BASE_DIR = Paths.get(System.getProperty("user.home"), "Saved Images");
 
     // 判断目录是否存在，创建目录
     public ImageServerController(){
