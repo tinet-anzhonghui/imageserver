@@ -30,10 +30,11 @@ public class ImageServerController {
     private static final int MAX_SIZE_IN_MB = 1;
 
     // 文件存储目录
-    private static final Path BASE_DIR = Paths.get(System.getProperty("user.home"), "Documents", "Saved Images");
+    private static final Path BASE_DIR = Paths.get(System.getProperty("user.home"), "Saved Images");
 
     // 判断目录是否存在，创建目录
     public ImageServerController(){
+        System.out.println("图片路径:"+BASE_DIR.toString());
         File file = BASE_DIR.toFile();
         if (!file.exists()) {
             file.mkdir();
@@ -47,7 +48,6 @@ public class ImageServerController {
      */
     @RequestMapping("getImageNames")
     public @ResponseBody List<String> getImageNames() throws IOException {
-
         // 过滤文件
         DirectoryStream.Filter<java.nio.file.Path> filter = entry -> {
             boolean sizeOk = Files.size(entry) <= 1024 * 1024 * MAX_SIZE_IN_MB;

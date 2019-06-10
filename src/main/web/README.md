@@ -7,3 +7,7 @@
 
 # 图片列表
 在浏览器中输入第几即可：localhost:8188/imageServer/getImageNames
+
+# 图片路径
+windows：C:\Users\用户\Saved Images
+linux：/root/Saved Images
