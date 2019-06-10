@@ -8,6 +8,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,6 +31,14 @@ public class ImageServerController {
 
     // 文件存储目录
     private static final Path BASE_DIR = Paths.get(System.getProperty("user.home"), "Documents", "Saved Images");
+
+    // 判断目录是否存在，创建目录
+    public ImageServerController(){
+        File file = BASE_DIR.toFile();
+        if (!file.exists()) {
+            file.mkdir();
+        }
+    }
 
     /**
      * @Description 获取所有的图片名称
