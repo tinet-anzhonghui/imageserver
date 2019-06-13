@@ -1,10 +1,13 @@
 package com.hx.imageserver.controller;
 
+import com.hx.imageserver.bean.Image;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -27,7 +30,8 @@ import java.util.List;
 public class ImageServerController {
 
     // 文件大小
-    private static final int MAX_SIZE_IN_MB = 1;
+    @Value("${max.size.in.mb}")
+    private int MAX_SIZE_IN_MB;
 
     // 文件存储目录
     public static final Path BASE_DIR = Paths.get(System.getProperty("user.home"), "Saved Images");
@@ -46,9 +50,10 @@ public class ImageServerController {
      * @return
      * @throws IOException
      */
-    @RequestMapping("getImageNames")
-    public @ResponseBody List<String> getImageNames() throws IOException {
-        // 过滤文件
+    @GetMapping("getImageNames")
+    public @ResponseBody List<Image> getImageNames(@RequestParam("query") String query) throws IOException {
+
+        // 过滤文件，只返回1M以内的照片
         DirectoryStream.Filter<java.nio.file.Path> filter = entry -> {
             boolean sizeOk = Files.size(entry) <= 1024 * 1024 * MAX_SIZE_IN_MB;
             boolean extensionOk = entry.getFileName().toString().endsWith("jpg") || entry.getFileName().toString().endsWith("png");
@@ -56,11 +61,39 @@ public class ImageServerController {
         };
 
         // 将结果反馈
-        List<String> result = new ArrayList<>();
-        for (Path entry : Files.newDirectoryStream(BASE_DIR, filter)) {
-            result.add(entry.getFileName().toString());
+        List<Image> result = new ArrayList<>();
+        if (StringUtils.isEmpty(query)) {
+            for (Path entry : Files.newDirectoryStream(BASE_DIR, filter)) {
+                result.add(new Image(entry.getFileName().toString()));
+            }
+        } else {
+            // 模糊查询
+            for (Path entry : Files.newDirectoryStream(BASE_DIR, filter)) {
+                String fileName = entry.getFileName().toString();
+                if (!fileName.contains(query)){
+                    continue;
+                }
+                result.add(new Image(entry.getFileName().toString()));
+            }
         }
         return result;
+    }
+
+    /**
+     * @Description 删除照片
+     * @param fileName
+     * @return
+     */
+    @GetMapping("removeImage")
+    public @ResponseBody String removeImage (@RequestParam("name") String fileName){
+        Path dest = dest = BASE_DIR.resolve(fileName);
+        try {
+            Files.delete(dest);
+            return "success";
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return "error";
     }
 
     /**
@@ -105,7 +138,7 @@ public class ImageServerController {
     }
 
     /**
-     * @Description 上传图片
+     * @Description 单个图片上传
      * @param file
      * @return
      */
@@ -115,7 +148,7 @@ public class ImageServerController {
         if (!file.isEmpty()) {
             // 判断图片大小
             if (file.getSize() > 1024 * 1024 * MAX_SIZE_IN_MB) {
-                return "imgage is too big";
+                return "图片太大";
             }
             // 保存图片
             try {
@@ -124,14 +157,41 @@ public class ImageServerController {
                 Files.copy(in, BASE_DIR.resolve(fileName), StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException e) {
                 e.printStackTrace();
-                return "error";
+                return "上传图片出错";
             }
 
         } else {
-            return "no file";
+            return "请选择图片";
         }
 
-        return  "success";
+        return  "上传成功";
+    }
+    /**
+     * @Description 多个图片上传
+     * @param files
+     * @return
+     */
+    @PostMapping(value="uploadImages")
+    public @ResponseBody  String uploadImages(@RequestParam("files") MultipartFile[] files){
+        // 判断是否上传文件
+        if (files != null && files.length != 0) {
+            for (MultipartFile file : files) {
+                // 获取图片名称
+                String fileName = file.getOriginalFilename();
+                // 保存图片
+                try {
+                    InputStream in = file.getInputStream();
+                    Files.copy(in, BASE_DIR.resolve(fileName), StandardCopyOption.REPLACE_EXISTING);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+        } else {
+            return "请选择图片";
+        }
+
+        return  "上传成功";
     }
 
 }

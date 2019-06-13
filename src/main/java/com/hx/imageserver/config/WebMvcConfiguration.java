@@ -22,7 +22,7 @@ public class WebMvcConfiguration extends WebMvcConfigurerAdapter {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         //配置静态资源处理
-        registry.addResourceHandler("/showImage/**")
+        registry.addResourceHandler("/imageServer/showImage/**")
                 .addResourceLocations("file:"+ImageServerController.BASE_DIR.toString()+"\\");
         super.addResourceHandlers(registry);
     }
