@@ -11,3 +11,4 @@
 # 图片路径
 windows：C:\Users\用户\Saved Images
 linux：/root/Saved Images
+

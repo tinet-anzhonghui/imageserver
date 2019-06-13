@@ -6,6 +6,8 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 
+import java.io.File;
+
 /**
  * @Author: AN
  * @Description: 映射配置
@@ -17,23 +19,25 @@ public class WebMvcConfiguration extends WebMvcConfigurerAdapter {
 
     /**
      * 配置图片的位置
+     *
      * @param registry
      */
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         //配置静态资源处理
         registry.addResourceHandler("/imageServer/showImage/**")
-                .addResourceLocations("file:"+ImageServerController.BASE_DIR.toString()+"\\");
+                .addResourceLocations("file:" + ImageServerController.BASE_DIR.toString() + File.separator);
         super.addResourceHandlers(registry);
     }
 
 
     /**
      * 跨域访问配置
+     *
      * @param registry
      */
     @Override
-    public void addCorsMappings(CorsRegistry registry){
+    public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**").allowedMethods("*").allowedOrigins("*").allowedHeaders("*");
     }
 }

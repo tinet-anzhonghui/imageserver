@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+
+    <!-- css文件 -->
+    <link href="css/bootstrap.min.css?v=3.3.5" rel="stylesheet">
+    <link href="css/plugins/webuploader/webuploader.css" rel="stylesheet" type="text/css">
+    <link href="css/plugins/webuploader/webuploader-style.min.css" rel="stylesheet" type="text/css">
+    <link href="css/style.min.css?v=4.0.0" rel="stylesheet">
+    <link href="css/plugins/bootstrap-table/bootstrap-table.min.css" rel="stylesheet">
+    <!-- js文件 -->
+    <script src="js/jquery.min.js?v=2.1.4"></script>
+    <script src="js/bootstrap.min.js?v=3.3.5"></script>
+    <script src="js/plugins/webuploader/webuploader.min.js"></script>
+    <script src="js/upload.js"></script>
+    <script src="js/plugins/bootstrap-table/bootstrap-table.min.js"></script>
+    <script src="js/plugins/bootstrap-table/locale/bootstrap-table-zh-CN.min.js"></script>
+
+
+</head>
+
+<body class="gray-bg">
+<div class="wrapper wrapper-content animated" style="margin:10px 30px;">
+    <div class="row">
+        <div class="col-sm-12" >
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5 style="margin-top:10px;">上传图片【注意：1.图片重复上传会替换原有图片; 2.大于1M的图片会自动压缩】</h5>
+                    <button onclick="reload()" type="button" style="margin-left:20px;" class="btn btn-success">刷新页面</button>
+                </div>
+                <div class="ibox-content">
+                    <div class="page-container">
+                        <div id="uploader" class="wu-example">
+                            <div class="queueList">
+                                <div id="dndArea" class="placeholder">
+                                    <div id="filePicker"></div>
+                                    <p>或将图片拖到这里，单次最多可选300张</p>
+                                </div>
+                            </div>
+                            <div class="statusBar" style="display:none;">
+                                <div class="progress">
+                                    <span class="text">0%</span>
+                                    <span class="percentage"></span>
+                                </div>
+                                <div class="info"></div>
+                                <div class="btns">
+                                    <div id="filePicker2"></div>
+                                    <div class="uploadBtn">开始上传</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>图片操作</h5>
+                </div>
+                <div class="ibox-content" style="height:60px;">
+                    <div class="col-sm-12" >
+                        <label class="col-sm-1 control-label" style="padding-top:8px;">图片名称：</label>
+                        <div class="col-sm-2" style="padding-left:0;">
+                            <input type="text" class="form-control" name="query" id="query">
+                        </div>
+                        <!-- 查询按钮 -->
+                        <button class="col-sm-1 btn btn-success" style="margin-left:10px;" id="btn_query" type="button" >查询</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-12" >
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>图片信息</h5>
+                </div>
+
+                <!-- 内容开始 -->
+                <div class="ibox-content">
+                    <table id="table_image_info" class="table table-hover">
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- 模态框显示图片预览 -->
+        <div class="modal inmodal fade" id="modal_previewImage" tabindex="-1"
+             role="dialog" aria-hidden="true">
+            <div class="modal-dialog" style="width: 550px">
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <div class="ibox-title">
+                            <h5>图片预览</h5>
+                        </div>
+                        <div class="ibox-content" align="center">
+                            <img id="previewImage" style="width:400px;" src="" />
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-danger"
+                                        data-dismiss="modal">关闭</button>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /.modal-body -->
+                </div>
+                <!-- /.modal-content -->
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+
+    $(document).ready(function() {
+        queryImageInfo();
+    });
+
+    /* 刷新当前页面 */
+    function reload() {
+        window.location.reload();
+    }
+
+    $("#btn_query").click(function(){
+        queryImageInfo();
+    });
+
+    // 查询图片信息
+    function queryImageInfo(){
+        $.get("http://localhost:52000/imageServer/getImageNames",
+            {
+                query : $("#query").val()
+            },
+            function (data) {
+                //table-start
+                $("#table_image_info").bootstrapTable('destroy');
+                //填充table数据
+                $('#table_image_info').bootstrapTable({
+                    data : data,
+                    dataType : "json",
+                    editable : true, //开启编辑模式
+                    //是否显示行间隔色
+                    striped : true,
+                    //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+                    cache : false,
+                    //是否显示分页（*）
+                    pagination : true,
+                    //是否启用排序
+                    sortable : false,
+                    //排序方式
+                    sortOrder : "desc",
+                    //初始化加载第一页，默认第一页
+                    pageNumber : 1,
+                    //每页的记录行数（*）
+                    pageSize : 5,
+                    //可供选择的每页的行数（*）
+                    pageList : [ 5, 10, 50 ],
+                    uniqueId : 'index', //将index列设为唯一索引
+                    //分页方式：client客户端分页，server服务端分页（*）
+                    //sidePagination : "client",
+                    columns : [
+                        {
+                            field : "index",
+                            title : "序号",
+                            align : "center",
+                            edit : false,
+                            formatter : function(value, row, index) {
+                                return row.index = index + 1; //返回行号
+                            }
+                        }, {
+                            field : 'name',
+                            title : '图片名称',
+                            align : "center",
+                            edit : false
+                        }, {
+                            title : "图片",
+                            align : "center",
+                            formatter : function(value, row, rowIndex) {
+                                var strHtml = '<img style="width:50px;" src="http://localhost:52000/imageServer/showImage/' + row.name + '" />';
+                                return strHtml;
+                            },
+                            edit : false
+                        }, {
+                            title : "操作",
+                            align : "center",
+                            formatter : function(value, row, rowIndex) {
+                                var name = JSON.stringify(row.name);
+                                var strHtml = "<button class='btn btn-success' onclick='previewImage(" + name + ")'>预览</button>" +
+                                    "<button class='btn btn-danger' style='margin-left:10px;' onclick='removeImage(" + name + ")'>删除</button>";
+                                return strHtml;
+                            },
+                            edit : false
+                        } ],
+                });
+                //table-end
+            }
+        );
+    }
+
+    // 预览照片
+    function previewImage(name){
+        var url = "http://localhost:52000/imageServer/showImage/" + name;
+        $("#previewImage").attr("src", url);
+        //打开模态框 显示数据
+        $('#modal_previewImage').modal('show');
+    }
+
+    function removeImage(name){
+        $.get("http://localhost:52000/imageServer/removeImage",
+            {
+                name : name
+            },
+            function (data) {
+                if (data == "success") {
+                    alert("删除成功");
+                    queryImageInfo();
+                } else {
+                    alert("删除失败");
+                }
+            }
+        );
+    }
+</script>
+</body>
+</html>

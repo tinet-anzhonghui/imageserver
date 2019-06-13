@@ -3,12 +3,37 @@
     <head>
         <title>Image Upload</title>
         <meta charset="UTF-8">
+		<script src="js/jquery.min.js"></script>
     </head>
     <body>
-        <form action="http://localhost:8080/imageServer/uploadImage" enctype="multipart/form-data" method="post"> 
-            <input type="file" id="filechooser" name = "file">
-			<button type="submit" id="submit">Upload</button>
-        </form>
-        <p id="status"></p>
+        <div class="wrapper wrapper-content animated fadeInRight">
+			<div class="ibox-title">
+				<h4><strong>照片信息</strong></h4>
+			</div>
+			<div class="ibox-content" style="height:100px;">
+				<form id="img-form" enctype="multipart/form-data" method="post"> 
+					<input type="file" id="filechooser" style="float:left;" name = "file">
+					<button type="button" class="btn btn-primary" style="float:left;" id="submit">上传照片</button>
+				</form>
+			</div>
+		</div>
+	<script>
+		$("#submit").click(function(){
+			var data = new FormData(document.getElementById("img-form"));
+            $.ajax({
+                type: 'POST',
+                url: 'http://localhost:52000/imageServer/uploadImage',
+                data: data,
+                contentType: false, //不设置内容类型
+                processData: false, //不处理数据 
+                success: function (data) {
+					alert(data);
+                },
+            	error: function () {
+            		alert("上传失败");
+            	}
+            });
+		}); 
+	</script>
     </body>
 </html>

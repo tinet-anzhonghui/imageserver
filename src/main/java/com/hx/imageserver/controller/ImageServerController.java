@@ -37,8 +37,8 @@ public class ImageServerController {
     public static final Path BASE_DIR = Paths.get(System.getProperty("user.home"), "Saved Images");
 
     // 判断目录是否存在，创建目录
-    public ImageServerController(){
-        System.out.println("图片路径:"+BASE_DIR.toString());
+    public ImageServerController() {
+        System.out.println("图片路径:" + BASE_DIR.toString());
         File file = BASE_DIR.toFile();
         if (!file.exists()) {
             file.mkdir();
@@ -46,12 +46,13 @@ public class ImageServerController {
     }
 
     /**
-     * @Description 获取所有的图片名称
      * @return
      * @throws IOException
+     * @Description 获取所有的图片名称
      */
     @GetMapping("getImageNames")
-    public @ResponseBody List<Image> getImageNames(@RequestParam("query") String query) throws IOException {
+    public @ResponseBody
+    List<Image> getImageNames(@RequestParam("query") String query) throws IOException {
 
         // 过滤文件，只返回1M以内的照片
         DirectoryStream.Filter<java.nio.file.Path> filter = entry -> {
@@ -70,7 +71,7 @@ public class ImageServerController {
             // 模糊查询
             for (Path entry : Files.newDirectoryStream(BASE_DIR, filter)) {
                 String fileName = entry.getFileName().toString();
-                if (!fileName.contains(query)){
+                if (!fileName.contains(query)) {
                     continue;
                 }
                 result.add(new Image(entry.getFileName().toString()));
@@ -80,12 +81,13 @@ public class ImageServerController {
     }
 
     /**
-     * @Description 删除照片
      * @param fileName
      * @return
+     * @Description 删除照片
      */
     @GetMapping("removeImage")
-    public @ResponseBody String removeImage (@RequestParam("name") String fileName){
+    public @ResponseBody
+    String removeImage(@RequestParam("name") String fileName) {
         Path dest = dest = BASE_DIR.resolve(fileName);
         try {
             Files.delete(dest);
@@ -97,16 +99,16 @@ public class ImageServerController {
     }
 
     /**
-     * @Description 图片下载
      * @param fileName 下载文件名
      * @return
      * @throws IOException
+     * @Description 图片下载
      */
     @GetMapping("downloadImage")
     public ResponseEntity<byte[]> downloadImage(@RequestParam("name") String fileName) throws IOException {
         Path dest = null;
         // 如果请求不带文件名
-        if (fileName.indexOf(".jpg") == -1 && fileName.indexOf(".png") == -1) out : {
+        if (fileName.indexOf(".jpg") == -1 && fileName.indexOf(".png") == -1) out:{
             // 尝试查找jpg
             String tempJpg = fileName + ".jpg";
             dest = BASE_DIR.resolve(tempJpg);
@@ -119,7 +121,8 @@ public class ImageServerController {
             fileName += ".png";
             dest = BASE_DIR.resolve(fileName);
 
-        } else {
+        }
+        else {
             dest = BASE_DIR.resolve(fileName);
         }
 
@@ -138,12 +141,13 @@ public class ImageServerController {
     }
 
     /**
-     * @Description 单个图片上传
      * @param file
      * @return
+     * @Description 单个图片上传
      */
-    @PostMapping(value="uploadImage")
-    public @ResponseBody  String uploadImage(@RequestParam("file") MultipartFile file){
+    @PostMapping(value = "uploadImage")
+    public @ResponseBody
+    String uploadImage(@RequestParam("file") MultipartFile file) {
         // 判断是否上传文件
         if (!file.isEmpty()) {
             // 判断图片大小
@@ -164,15 +168,17 @@ public class ImageServerController {
             return "请选择图片";
         }
 
-        return  "上传成功";
+        return "上传成功";
     }
+
     /**
-     * @Description 多个图片上传
      * @param files
      * @return
+     * @Description 多个图片上传
      */
-    @PostMapping(value="uploadImages")
-    public @ResponseBody  String uploadImages(@RequestParam("files") MultipartFile[] files){
+    @PostMapping(value = "uploadImages")
+    public @ResponseBody
+    String uploadImages(@RequestParam("files") MultipartFile[] files) {
         // 判断是否上传文件
         if (files != null && files.length != 0) {
             for (MultipartFile file : files) {
@@ -191,7 +197,7 @@ public class ImageServerController {
             return "请选择图片";
         }
 
-        return  "上传成功";
+        return "上传成功";
     }
 
 }
